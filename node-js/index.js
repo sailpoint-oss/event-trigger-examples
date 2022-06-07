@@ -51,6 +51,9 @@ app.post('/sync-access-request-preapproval', authorization, function(req, res) {
     // deploy to production.
     console.log(`/sync-access-request-preapproval received a body with the following contents:\n ${JSON.stringify(req.body, null, 2)}`)
 
+    // This response is hardcoded to always approve the access request.  In reality,
+    // you will want to perform additional logic or call other APIs to determine whether
+    // to approve or deny the request.
     const res_body = {
         output: {
             approved: true,
@@ -77,9 +80,9 @@ app.post('/async-access-request-preapproval', authorization, function(req, res) 
     // deploy to production.
     console.log(`/async-access-request-preapproval received a body with the following contents:\n ${JSON.stringify(req.body, null, 2)}`)
 
-    // Respond with a 200 and empty body to inform IDN that the event was received and is
+    // Respond with a 200 and empty JSON object to inform IDN that the event was received and is
     // being processsed.
-    res.status(200).send()
+    res.status(200).send({})
 
     // Pass the payload data to a function that will handle the processing of the event.
     // This function will need to make an HTTP call using the URL and secret provided
@@ -117,17 +120,18 @@ app.post('/dynamic-access-request-preapproval', authorization, function(req, res
         }    
         res.status(200).send(res_body)
     } else {
-        // Respond with a 202 and empty body to inform IDN that the event was received and is
-        // being processsed.
-        res.status(202).send()
+        // Respond with a 202 and empty JSON object to inform IDN that the event was received.
+        // Call additional function(s) to further process the event and respond using
+        // the callback URL provided in the event body.
+        res.status(202).send({})
         processAccessRequest(req.body)
     }
 })
 
+// To process the access request, kick off any processes necessary to make a decision
+// based on the event data.  Once a decision has been made, use the URL and secret
+// provided in the _metadata property of the event to respond to IDN with the decision.
 function processAccessRequest(event) {
-    // To process the access request, kick off any processes necessary to make a decision
-    // based on the event data.  Once a decision has been made, use the URL and secret
-    // provided in the _metadata property of the event to respond to IDN with the decision.
     axios.post(event["_metadata"].callbackURL, {
         secret: event["_metadata"].secret,
         output: {

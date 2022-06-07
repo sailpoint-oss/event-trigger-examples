@@ -1,6 +1,6 @@
 # Node.js Event Trigger Client
 
-This folder contains an example event trigger client implemented as an express server in Node.js.
+This folder contains an example event trigger client implemented as an express server in Node.js.  It provides code stubs to demonstrate how to process a `FIRE_AND_FORGET` trigger type, as well as how to process a `REQUEST_RESPONSE` trigger for the `sync`, `async`, and `dynamic` response modes.
 
 ## Setup
 
