@@ -23,15 +23,48 @@ npm start
 
 This should start the server at `localhost:8081`.
 
-## Configuration
-
-Start by creating a file called ".env".  This is an environment file that will hold secret configuration information needed by the server to run.  Within your ".env" file, provide a randomly generated string of characters in the `TOKEN` field to enable authentication on the server.
-
 ```text
-TOKEN="<random string>"
+$ pwd
+/Users/Documents/event-trigger-examples/node-js
+
+$ npm start
+
+> node-js@1.0.0 start
+> node index.js
+
+Example app listening at http://:::8081
 ```
 
-When subscribing to an event trigger in the IDN UI, set the **Authentication Type** to **Bearer Token** and paste your token into the text box.  This will instruct IDN to send your secret token along with each event that the trigger generates.  This example app has an authentication function that will check each event received by IDN has the correct token before processing the request.
+## Configuration
+
+Start by creating a file called ".env" within the `node-js` folder.  This file is not included in this repository since it contains secrets, and comitting this file to your repository can expose secret credentials.  This file is included in the `.gitignore` file, so it won't be included in commits once you add it. 
+
+```txt
+$ pwd
+/Users/colin.mckibben/Documents/github/event-trigger-examples/node-js
+
+$ ls -la
+drwxr-xr-x  10 colin.mckibben  952227198    320 Jun 21 13:50 .
+drwxr-xr-x   6 colin.mckibben  952227198    192 Jun  1 14:55 ..
+-rw-r--r--   1 colin.mckibben  952227198     47 Jun  2 10:42 .env
+-rw-r--r--   1 colin.mckibben  952227198     17 Jun  2 10:42 .gitignore
+-rw-r--r--   1 colin.mckibben  952227198   6416 Jun  9 10:05 README.md
+drwxr-xr-x   2 colin.mckibben  952227198     64 Jun 21 13:50 images
+-rw-r--r--   1 colin.mckibben  952227198   8052 Jun  7 15:46 index.js
+drwxr-xr-x  67 colin.mckibben  952227198   2144 Jun  6 14:42 node_modules
+-rw-r--r--   1 colin.mckibben  952227198  44080 Jun  6 14:42 package-lock.json
+-rw-r--r--   1 colin.mckibben  952227198    363 Jun  6 14:41 package.json
+```
+
+This is an environment file that will hold secret configuration information needed by the server to run.  Within your ".env" file, provide a randomly generated string of characters in the `TOKEN` field to enable authentication on the server.
+
+```text
+TOKEN="R@ndomStr1ng0fCh@r&ct3rs"
+```
+
+When subscribing to an event trigger in the IDN UI, set the **Authentication Type** to **Bearer Token** and paste your token into the `Bearer token` text box.  This will instruct IDN to send your secret token along with each event that the trigger generates.  This example app has an authentication function that will check each event received by IDN has the correct token before processing the request.
+
+![ETS Edit Screen](./images/ets-edit-screen.png)
 
 > Note: Event trigger subscribers don't need to implement authentication, and the authentication logic in this example app can be removed if desired.  However, it is best practice to perform authentication since your subscriber will be public to the internet and you want to ensure that you only process requests that are sent by an authorized service.
 
@@ -79,6 +112,15 @@ This output shows us that any request sent to `https://23bf-55-55-55-555.ngrok.i
 curl --location --request POST 'https://23bf-55-55-55-555.ngrok.io/identity-attributes-changed' --header 'Content-Type: application/json' --data-raw '{"data": "hello world!"}'
 ```
 
-Now you can configure a trigger subscription in IDN to use this public IP address to send live event trigger data directly to your local machine for testing purposes.  Just paste `https://23bf-55-55-55-555.ngrok.io/identity-attributes-changed` into the **Integration URL** text box when subscribing to a trigger.
+Now you can configure a trigger subscription in IDN to use this public IP address to send live event trigger data directly to your local machine for testing purposes.  Just paste one of the configured URLs exposed by this server into the **Integration URL** text box when subscribing to a trigger.  The following endpoints are included out-of-the-box with this example app:
+
+- `/identity-attributes-changed` - Processes `FIRE_AND_FORGET` type event triggers.  The name of the endpoint can be changed if you want to use a different trigger.
+- `/sync-access-request-preapproval` - Processes `REQUEST_RESPONSE` type event triggers configured for **synchronous** mode.
+- `/async-access-request-preapproval` - Processes `REQUEST_RESPONSE` type event triggers configured for **asynchronous** mode.
+- `/dynamic-access-request-preapproval` - Processes `REQUEST_RESPONSE` type event triggers configured for **dynamic** mode.
+
+For example, to configure an [Access Request Submitted](https://developer.sailpoint.com/triggers/available-event-triggers/Access_Request_Preapproval.html#getting-started) trigger to send events to this service's ngrok endpoint using **async** mode, use the following configuration options.
+
+![ETS Edit Screen](./images/ets-edit-screen.png)
 
 > Note: ngrok will generate a random URL each time it is started.  You will need to update your trigger subscription with the new URL generated by ngrok each time you run it.
